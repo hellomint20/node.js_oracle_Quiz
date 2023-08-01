@@ -1,0 +1,19 @@
+<%- include("../default/header") %>
+
+<h3>- 개인 정보-</h3>
+
+<table border="1">
+    <tr>
+        <th>아이디</th> <th>비밀번호</th> <th>이름</th> <th>주소</th>
+    </tr>
+    <tr>
+        <td><%= member.ID%></td>  
+        <td><%= member.PWD%></td>  
+        <td><%= member.NAME%></td>  
+        <td><%= member.ADDR%></td>
+    </tr>
+</table>
+
+<a href="/member/modify_form?id=<%= member.ID%>">수정</a>
+<a href="/member/delete/<%= member.ID%>">삭제</a>
+<a href="/member/list">목록 이동</a>
