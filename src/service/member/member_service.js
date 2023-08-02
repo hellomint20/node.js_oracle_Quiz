@@ -1,32 +1,15 @@
 const memberDAO = require("../../database/member/member_dao");
 
 const loginCheck = async (body) => {
-    const result = await memberDAO.loginCheck(body);
-    console.log("service loginCheck : "+result)
-    
-    let msg ="", url = "";
-    if(result == 0){    //성공
-        msg = "로그인 성공";
-        url = "/member/list";
-    }else{  //실패
-        msg = "로그인 실패";
-        url = "/member/login";
-    }
-    const msgPack = getMessage(msg, url);
-    return msgPack;
-};
-
-const loginCheck2 = async (body, session) => {
     const result = await memberDAO.getList();
-    let msg ="", url = "";
+    let msg ="", url = "", msgPack={};
     for(let i = 0; i <result.rows.length; i++){
         if(result.rows[i].ID == body.id){
             console.log("성공")
             if(result.rows[i].PWD == body.pwd){
-                session.userId = body.id;
-                console.log("session : ", session.userId );
-                msg = body.id+"님 환영합니다~~";
-                url = "/member/list";
+                msgPack.result = 0;
+                msg = result.rows[i].NAME+"님 환영합니다~~";
+                url = "/";
                 break;
             }else{
                 msg = "비밀번호가 틀렸습니다";
@@ -38,7 +21,29 @@ const loginCheck2 = async (body, session) => {
             url = "/member/login";
         }
     }
-    const msgPack = getMessage(msg, url);
+    msgPack.msg = getMessage(msg, url);
+    return msgPack;
+};
+
+const loginCheck2 = async (body) =>{
+    let member = await memberDAO.getMember2(body.id);
+    console.log(member);
+    let msg ="", url = "", msgPack={};
+    if(member.rows.length == 1){
+        member = member.rows[0];
+        if(body.pwd === member.PWD){
+                msg = member.NAME+"님 환영합니다~~";
+                url = "/";
+                msgPack.result = 0;
+        }else{  //비밀번호 일치X
+            msg = "비밀번호가 틀렸습니다";
+                url = "/member/login";
+        }
+    }else{  //해당하는 id가 존재하지 않는 경우
+        msg = "아이디가 일치하지 않습니다.";
+        url = "/member/login";
+    }
+    msgPack.msg = getMessage(msg, url);
     return msgPack;
 };
 
@@ -56,21 +61,21 @@ const getList = async () => {
 const register = async (body) => {
     const result = await memberDAO.register(body);
     console.log("register : ", result);
-    let msg ="", url = "";
+    let msg ="", url = "", msgPack={};
     if(result == 1){    //성공
         msg = "회원가입 성공";
-        url = "/member/list";
+        url = "/";
     }else{  //실패
-        msg = "123";
+        msg = "회원가입 실패";
         url = "/member/login";
     }
-    const msgPack = getMessage(msg, url);
+    msgPack.msg = getMessage(msg, url);
     return msgPack;    
 };
 
-const getMember = (mId) => {    
+const getMember = async (mId) => {    
     console.log("service => ", memberDAO.getMember(mId));
-    return memberDAO.getMember(mId);
+    return await memberDAO.getMember(mId);
 };
 
 const modify = async (body) =>{
@@ -99,4 +104,4 @@ const deleteMember = async (body) =>{
     return getMessage(msg, url);
 };
 
-module.exports = {loginCheck, getList, register, loginCheck2, getMember, modify, deleteMember};
+module.exports = {loginCheck, getList, register, loginCheck, getMember, modify, deleteMember, loginCheck2};

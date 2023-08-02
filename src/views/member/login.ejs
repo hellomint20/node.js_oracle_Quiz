@@ -1,6 +1,15 @@
 <%- include("../default/header") %>
 
+1번
 <form action="/member/login_check" method="post">
+    <input type="text" name="id" placeholder="input id"><br>
+    <input type="text" name="pwd" placeholder="input password"><br>
+    <a href="/member/register_form">회원가입</a> &nbsp;
+    <input type="submit" value="login">
+</form>
+
+<hr>2번
+<form action="/member/login_check2" method="post">
     <input type="text" name="id" placeholder="input id"><br>
     <input type="text" name="pwd" placeholder="input password"><br>
     <a href="/member/register_form">회원가입</a> &nbsp;

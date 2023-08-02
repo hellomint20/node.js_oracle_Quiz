@@ -1,6 +1,11 @@
 const oracledb = require('oracledb');
 const dbConfig = require("../../../config/database/db_config")
 oracledb.autoCommit = true;
+/* 설정하지 않으면 2차원 배열로 들어오기 때문에 KEY, VALUE 를 사용할 수 없다.
+[[값, 값, 값], [값, 값, 값] ]
+설정하면 1차원 배열에 [ {}, {} ..]형식으로 들어온다
+즉, KEY, VALUE를 사용해 정보를 가져올 수 있다.*/
+oracledb.outFormat = oracledb.OBJECT;
 
 const loginCheck = async (body) => {
     let con = await oracledb.getConnection(dbConfig);   //DB연동 코드
@@ -19,10 +24,7 @@ const loginCheck = async (body) => {
 const getList = async () => {
     oracledb.outFormat = oracledb.OBJECT;
     let con = await oracledb.getConnection(dbConfig);
-    let result = await con.execute("select * from members02");
-    await con.close();
-    console.log("dao getList : ", result);
-    return result;
+    return await con.execute("select * from members02");
 };
 
 const register = async (body) => {
@@ -38,17 +40,31 @@ const register = async (body) => {
     return result;  
 };
 
-const getMember = async (mId) => {
+const getMember = async (id) => {
     let con = await oracledb.getConnection(dbConfig);   //DB연동 코드
     const sql = "select * from members02 where id =:id";
     let member;
     try{
-       member = await con.execute(sql, mId);
+       member = await con.execute(sql, id);
        console.log("dao getmember : ", member);     //배열의 0번째에 원하는 값이 들어있음
     }catch(err){
         console.log(err);
     }
+    //return member; 
     return member.rows[0]; 
+};
+
+const getMember2 = async (id) => {
+    let con = await oracledb.getConnection(dbConfig);   //DB연동 코드
+    const sql = `select * from members02 where id ='${id}'`;
+    let member;
+    try{
+       member = await con.execute(sql);
+       console.log("dao getmember : ", member);     //배열의 0번째에 원하는 값이 들어있음
+    }catch(err){
+        console.log(err);
+    }
+    return member; 
 };
 
 const modify = async (body) => {
@@ -76,4 +92,4 @@ const deleteMember = async (body) =>{
     return result;
 };
 
-module.exports = {loginCheck, getList, register, getMember, modify, deleteMember};
+module.exports = {loginCheck, getList, register, getMember, modify, deleteMember, getMember2};
